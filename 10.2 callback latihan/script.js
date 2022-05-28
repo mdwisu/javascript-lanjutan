@@ -1,94 +1,65 @@
-// callback
-// function yang dikirimkan sebagai parameter untuk function lain
-
-// syncronous callback
-// function halo(nama) {
-//     alert(`halo, ${nama}`);
-// }
-// function tampilkanPesan(callback) {
-//     const nama = prompt('Masukan Nama : ');
-//     callback(nama);
-// }
-// tampilkanPesan(nama => alert(`halo, ${nama}`));
-
-
-// const mhs = [
-//     {
-//         "nama": "dwi susanto",
-//         "nrp": "202210044",
-//         "email": "dwisusanto@gmail.com",
-//         "jurusan": "Sistem Informasi",
-//         "idDosenWali": 1
-//     },
-//     {
-//         "nama": "dwi susanto",
-//         "nrp": "202210044",
-//         "email": "dwisusanto@gmail.com",
-//         "jurusan": "Sistem Informasi",
-//         "idDosenWali": 1
-//     },
-//     {
-//         "nama": "dwi susanto",
-//         "nrp": "202210044",
-//         "email": "dwisusanto@gmail.com",
-//         "jurusan": "Sistem Informasi",
-//         "idDosenWali": 1
-//     }
-// ];
-
-// console.log('mulai');
-// mhs.forEach(m => {
-//     for (let i = 0; i < 100000000; i++) {
-//         let date = new Date();
-        
-//     }
-//     console.log(m.nama)
-// });
-// console.log('selesai');
-
-
-// asynchronous callback
-
-// function GetDataMahasiswa(url, success, error) {
-//     let xhr = new XMLHttpRequest();
-
-//     xhr.onreadystatechange = function () {
-//         if (xhr.readyState === 4) {
-//             if (xhr.status === 200) {
-//                 success(xhr.response);
-//             } else if (xhr.status === 404) {
-//                 error();
-//             }
-//         }
-//     }
-//     xhr.open('get', url);
-//     xhr.send();
-// }
-
-
-// GetDataMahasiswa('mahasiswa.json', result => {
-//     const mhs = JSON.parse(result);
-//     mhs.forEach(m => {
-//         console.log(m.nama);
-//     });
-
-// }, () => {});
-
-
-// jquery
-console.log('mulai');
-$.ajax({
-    
-    url: "mahasiswa.json",
-
+$('.search-button').click(function (e) { 
+  $.ajax({
+    url: 'http://www.omdbapi.com/?apikey=dca61bcc&s=' + $('.input-keyword').val(),
     success: function (response) {
-        response.forEach(r => {
-            console.log(r.nama);
+      const movies = response.Search;
+      let cards = '';
+      movies.forEach(m => {
+        cards += showCards(m);
+      });
+      $('.movie-container').html(cards);
+  
+      // ketika tombol detail di clik
+      $('.modal-detail-button').click(function () {
+        $.ajax({
+          url:
+            'http://www.omdbapi.com/?apikey=dca61bcc&i=' + $(this).data('imdbid'),
+          success: function (m) {
+            const movieDetail = showMovieDetail(m);
+  
+            $('.modal-body').html(movieDetail);
+          },
+          error: function (e) {
+            console.log(e.responseText);
+          },
         });
- 
+      });
     },
     error: (e) => {
-        console.log(e.responseText);
-    }
+      console.log(e.responseText);
+    },
+  });
 });
-console.log('selesai');
+
+
+function showCards(m) {
+  return `<div class="col-md-4 my-4">
+            <div class="card">
+              <img class="card-img-top" src="${m.Poster}">
+              <div class="card-body">
+                <h5 class="card-title">${m.Title}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">${m.Year}</h6>
+                <a href="#" data-imdbid="${m.imdbID}" class="btn btn-primary modal-detail-button" data-toggle="modal" data-target="#movieDetailModal">Show Details</a>
+              </div>
+            </div>
+          </div>`;
+}
+
+function showMovieDetail(m) {
+  return `<div class="container-fluid">
+            <div class="row">
+              <div class="col-md-3">
+                <img src="${m.Poster}" class="img-fluid" alt="">
+              </div>
+              <div class="col-md">
+                <ul class="list-group">
+                  <li class="list-group-item"><h4>${m.Title} (${m.Year})</h4></li>
+                  <li class="list-group-item"><strong>Director : </strong>${m.Director}</li>
+                  <li class="list-group-item"><strong>Actor : </strong>${m.Actors}</li>
+                  <li class="list-group-item"><strong>Writter : </strong>${m.Writter}</li>
+                  <li class="list-group-item"><strong>Plot : </strong><br>${m.Plot}</li>
+                </ul>
+              </div>
+            </div>
+          </div>`;
+}
