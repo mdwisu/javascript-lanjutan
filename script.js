@@ -4,4 +4,4 @@ function tambah_angka(x, y) {
 
 
 
-
+tambah_angka()
